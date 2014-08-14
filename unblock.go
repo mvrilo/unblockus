@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-const usage = `usage - cli interface for the unblock-us service
+const USAGE = `usage - cli interface for the unblock-us service
 
 Usage:
-  unblock <email> [us|ca|uk|ie|mx|br|se|dk|no|fi|nl|ar|co]
+  unblock <email> [%s]
 
 Examples:
   unblock email@example.com # will simply reactivate the ip with the email
@@ -21,6 +21,8 @@ Examples:
 
 const reactivateURL = "https://check.unblock-us.com/get-status.js?reactivate=1"
 const countryURL = "http://realcheck.unblock-us.com/set-country.php"
+
+var countries = []string{"us", "ca", "uk", "ie", "mx", "br", "se", "dk", "no", "fi", "nl", "ar", "co"}
 
 func newRequest(url string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
@@ -48,42 +50,65 @@ func newRequest(url string) []byte {
 	return body
 }
 
-func reactivate() bool {
+func reactivate() {
 	body := newRequest(reactivateURL)
 	if bytes.Contains(body, []byte(`"is_active":true`)) {
-		return true
+		return
 	}
-	return false
+
+	fmt.Println("Reactivation didn't work")
+	os.Exit(1)
 }
 
-func setCountry() bool {
+func setCountry() {
 	body := newRequest(countryURL + "?code=" + os.Args[2])
 	if bytes.Contains(body, []byte(`"current":"`+strings.ToUpper(os.Args[2])+`"`)) {
-		return true
+		return
 	}
-	return false
+
+	fmt.Println("Changing country didn't work")
+	os.Exit(1)
+}
+
+func validate() {
+	if !strings.Contains(os.Args[1], "@") {
+		usage()
+		os.Exit(1)
+	}
+
+	if len(os.Args) < 3 {
+		return
+	}
+
+	var code string
+	for _, c := range countries {
+		if c == os.Args[2] {
+			code = c
+		}
+	}
+
+	if code == "" {
+		usage()
+		os.Exit(1)
+	}
+}
+
+func usage() {
+	fmt.Printf(USAGE, strings.Join(countries, "|"))
 }
 
 func main() {
-	switch len(os.Args) {
-	case 1:
-		fmt.Println(usage)
-	case 2:
-		if !reactivate() {
-			fmt.Println("Reactivation didn't work")
-			os.Exit(1)
-		}
-	case 3:
-		if !reactivate() {
-			fmt.Println("Reactivation didn't work")
-			os.Exit(1)
-		}
-		if !setCountry() {
-			fmt.Println("Changing country didn't work")
-			os.Exit(1)
-		}
+	args := len(os.Args)
+	if args < 2 {
+		usage()
+		os.Exit(0)
 	}
 
+	validate()
+	reactivate()
+
+	if args > 2 {
+		setCountry()
+	}
 	fmt.Println("Done!")
-	os.Exit(0)
 }
