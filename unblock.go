@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 )
 
 const USAGE = `unblock - cli interface for the unblock-us service
@@ -105,10 +106,21 @@ func main() {
 	}
 
 	validate()
-	reactivate()
+	wg := new(sync.WaitGroup)
+
+	wg.Add(1)
+	go func() {
+		reactivate()
+		wg.Done()
+	}()
 
 	if args > 2 {
-		setCountry()
+		wg.Add(1)
+		go func() {
+			setCountry()
+			wg.Done()
+		}()
 	}
+	wg.Wait()
 	fmt.Println("Done!")
 }
