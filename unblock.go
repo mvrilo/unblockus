@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const USAGE = `usage - cli interface for the unblock-us service
+const USAGE = `unblock - cli interface for the unblock-us service
 
 Usage:
   unblock <email> [%s]
