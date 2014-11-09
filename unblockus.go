@@ -10,20 +10,21 @@ import (
 	"sync"
 )
 
-const USAGE = `unblock - cli interface for the unblock-us service
+const USAGE = `unblockus - cli interface for the unblock-us service
 
 Usage:
-  unblock <email> [%s]
+  unblockus <email> [%s]
 
 Examples:
-  unblock email@example.com # will simply reactivate the ip with the email
-  unblock he@example.com ie # will reactivate and change the country to Ireland
+  unblockus email@example.com # will simply reactivate the ip with the email
+  unblockus he@example.com ie # will reactivate and change the country to Ireland
 `
 
 const reactivateURL = "https://check.unblock-us.com/get-status.js?reactivate=1"
 const countryURL = "http://realcheck.unblock-us.com/set-country.php"
 
-var countries = []string{"us", "ca", "uk", "ie", "mx", "br", "se", "dk", "no", "fi", "nl", "ar", "co"}
+var countries = []string{"us", "ar", "at", "be", "br", "ca", "co", "dk",
+	"fi", "fr", "de", "ie", "lu", "mx", "nl", "no", "se", "ch", "uk"}
 
 func newRequest(url string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
