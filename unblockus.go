@@ -34,12 +34,14 @@ Usage:
   unblockus <email> [%s]
 
 Examples:
-  unblockus email@example.com # will simply reactivate the ip with the email
-  unblockus he@example.com ie # will reactivate and change the country to Ireland
+  unblockus email@example.com # reactivate with the given email
+  unblockus he@example.com br # reactivate and change the country to Brazil
 `
 
-const reactivateURL = "https://check.unblock-us.com/get-status.js?reactivate=1"
-const countryURL = "http://realcheck.unblock-us.com/set-country.php"
+const (
+	reactivateURL = "https://check.unblock-us.com/get-status.js?reactivate=1"
+	countryURL    = "http://realcheck.unblock-us.com/set-country.php"
+)
 
 var countries = []string{"us", "ar", "at", "be", "br", "ca", "co", "dk",
 	"fi", "fr", "de", "ie", "lu", "mx", "nl", "no", "se", "ch", "uk"}
@@ -76,7 +78,7 @@ func reactivate() {
 		return
 	}
 
-	fmt.Println("Reactivation didn't work")
+	fmt.Fprintf(os.Stderr, "Reactivation didn't work\n")
 	os.Exit(1)
 }
 
@@ -86,7 +88,7 @@ func setCountry() {
 		return
 	}
 
-	fmt.Println("Changing country didn't work")
+	fmt.Fprintf(os.Stderr, "Changing country didn't work\n")
 	os.Exit(1)
 }
 
@@ -114,7 +116,7 @@ func validate() {
 }
 
 func usage() {
-	fmt.Printf(USAGE, strings.Join(countries, "|"))
+	fmt.Fprintf(os.Stderr, USAGE, strings.Join(countries, "|"))
 }
 
 func main() {
@@ -141,6 +143,6 @@ func main() {
 		}()
 	}
 	wg.Wait()
-	fmt.Println("Done!")
+	fmt.Fprintf(os.Stderr, "Done!\n")
 	os.Exit(0)
 }
